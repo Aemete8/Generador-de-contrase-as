@@ -1,0 +1,453 @@
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #F0EEFF;
+    --surface: #FFFFFF;
+    --accent: #7C5CFC;
+    --accent-soft: #EDE8FF;
+    --pink: #FF6B9D;
+    --text: #2D2D3A;
+    --text-muted: #A8A0C0;
+    --danger: #FF4D6D;
+    --success: #06D6A0;
+
+    /* Sombras clay — capas múltiples para dar volumen */
+    --shadow-card:
+        0 2px 0px #C4B8F8,
+        0 8px 24px rgba(124, 92, 252, 0.12),
+        0 24px 48px rgba(124, 92, 252, 0.08);
+
+    --shadow-btn:
+        0 4px 0px #5B3FD4,
+        0 8px 20px rgba(124, 92, 252, 0.30);
+
+    --shadow-btn-active:
+        0 1px 0px #5B3FD4,
+        0 2px 8px rgba(124, 92, 252, 0.20);
+
+    --shadow-output:
+        0 3px 0px #C4B8F8,
+        0 8px 20px rgba(124, 92, 252, 0.10);
+
+    --radius-card: 24px;
+    --radius-btn: 16px;
+    --radius-input: 14px;
+    --radius-pill: 999px;
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: var(--bg);
+    /* Gradiente suave para dar profundidad al fondo */
+    background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(124, 92, 252, 0.10) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(255, 107, 157, 0.08) 0%, transparent 60%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    color: var(--text);
+}
+
+/* ============================================
+     LAYOUT
+     ============================================ */
+.container {
+    width: 100%;
+    max-width: 440px;
+}
+
+/* ============================================
+     CARD — superficie principal clay
+     ============================================ */
+.card {
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    padding: 36px 32px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ============================================
+     ENCABEZADO
+     ============================================ */
+.card__header {
+    text-align: center;
+}
+
+.card__icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    display: block;
+    /* Flotado suave en loop — toque clay */
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+.card__title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+}
+
+.card__subtitle {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+/* ============================================
+     OUTPUT — campo de contraseña
+     ============================================ */
+.output {
+    background: var(--accent-soft);
+    border-radius: var(--radius-input);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: var(--shadow-output);
+    min-height: 64px;
+}
+
+.output__password {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.5;
+    flex: 1;
+    /* Texto placeholder en muted hasta que se genere */
+}
+
+.output__password.is-placeholder {
+    color: var(--text-muted);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.875rem;
+}
+
+.output__copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 8px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.output__copy-btn:hover {
+    background: #6A4AE8;
+}
+
+.output__copy-btn:active {
+    transform: scale(0.96);
+}
+
+/* Estado "copiado" */
+.output__copy-btn.is-copied {
+    background: var(--success);
+}
+
+/* ============================================
+     INDICADOR DE FORTALEZA
+     ============================================ */
+.strength {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.strength__bar-track {
+    flex: 1;
+    height: 10px;
+    background: var(--accent-soft);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+}
+
+.strength__bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: var(--radius-pill);
+    background: var(--text-muted);
+    transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s;
+}
+
+/* Clases de estado — las agregas con JS */
+.strength__bar-fill.is-weak {
+    width: 33%;
+    background: var(--danger);
+}
+
+.strength__bar-fill.is-medium {
+    width: 66%;
+    background: #FFB703;
+}
+
+.strength__bar-fill.is-strong {
+    width: 100%;
+    background: var(--success);
+}
+
+.strength__label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    min-width: 52px;
+    text-align: right;
+    transition: color 0.3s;
+}
+
+.strength__label.is-weak {
+    color: var(--danger);
+}
+
+.strength__label.is-medium {
+    color: #FFB703;
+}
+
+.strength__label.is-strong {
+    color: var(--success);
+}
+
+/* ============================================
+     CONTROLES — slider y checkboxes
+     ============================================ */
+.control {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.control__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.control__label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.control__value {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 2px 12px;
+    border-radius: var(--radius-pill);
+    min-width: 40px;
+    text-align: center;
+}
+
+/* --- Slider --- */
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: var(--radius-pill);
+    background: var(--accent-soft);
+    outline: none;
+    cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow:
+        0 3px 0px #5B3FD4,
+        0 4px 12px rgba(124, 92, 252, 0.35);
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+.slider::-webkit-slider-thumb:active {
+    transform: scale(1.15);
+}
+
+.slider::-moz-range-thumb {
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow:
+        0 3px 0px #5B3FD4,
+        0 4px 12px rgba(124, 92, 252, 0.35);
+    cursor: pointer;
+}
+
+/* --- Checkboxes personalizados --- */
+.options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg);
+    border-radius: var(--radius-input);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    user-select: none;
+    border: 2px solid transparent;
+}
+
+.option:hover {
+    background: var(--accent-soft);
+}
+
+/* Input nativo oculto */
+.option__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Caja visual del checkbox */
+.option__box {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 2.5px solid var(--text-muted);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s;
+    /* Checkmark con clip-path — aparece con JS añadiendo clase */
+}
+
+/* Estado checked — activado cuando el input está checked */
+.option__input:checked+.option__box {
+    background: var(--accent);
+    border-color: var(--accent);
+    /* Checkmark SVG como background */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Borde en la opción cuando está activa */
+.option:has(.option__input:checked) {
+    border-color: var(--accent-soft);
+    background: var(--accent-soft);
+}
+
+.option__text {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+}
+
+.option__text em {
+    display: block;
+    font-style: normal;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* ============================================
+     MENSAJE DE ERROR
+     ============================================ */
+.error-msg {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--danger);
+    text-align: center;
+    min-height: 18px;
+    /* Oculto por defecto, JS le pone texto */
+}
+
+/* ============================================
+     BOTÓN GENERAR
+     ============================================ */
+.btn-generate {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-btn);
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    box-shadow: var(--shadow-btn);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-generate:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 6px 0px #5B3FD4,
+        0 12px 24px rgba(124, 92, 252, 0.35);
+}
+
+.btn-generate:active {
+    transform: translateY(2px);
+    box-shadow: var(--shadow-btn-active);
+}
+
+/* ============================================
+     RESPONSIVE
+     ============================================ */
+@media (max-width: 480px) {
+    .card {
+        padding: 28px 20px;
+    }
+
+    .options {
+        grid-template-columns: 1fr;
+    }
+}
