@@ -129,8 +129,9 @@ body {
     border-radius: var(--radius-input);
     padding: 16px 18px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-around;
     gap: 12px;
     box-shadow: var(--shadow-output);
     min-height: 64px;
@@ -142,7 +143,7 @@ body {
     font-weight: 500;
     color: var(--text);
     line-height: 1.5;
-    flex: 1;
+    /* flex: 1; */
     /* Texto placeholder en muted hasta que se genere */
 }
 
