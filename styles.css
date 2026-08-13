@@ -183,6 +183,11 @@ body {
     background: var(--success);
 }
 
+.output__copy-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 /* ============================================
      INDICADOR DE FORTALEZA
      ============================================ */

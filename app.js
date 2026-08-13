@@ -1,142 +1,203 @@
-const passwordDisplay = document.querySelector('#passwordDisplay')
-const copyBtn = document.querySelector('#copyBtn')
-const copyLabel = document.querySelector('#copyLabel')
-const lengthSlider = document.querySelector('#lengthSlider')
-const lengthValue = document.querySelector('#lengthValue')
-const strengthBar = document.querySelector('#strengthBar')
-const strengthLabel = document.querySelector('#strengthLabel')
-const errorMsg = document.querySelector('#errorMsg')
-const generateBtn = document.querySelector('#generateBtn')
+// === CONSTANTES ===
 
-//Checks
-const chkLower = document.querySelector('#chkLower')
-const chkUpper = document.querySelector('#chkUpper')
-const chkNumbers = document.querySelector('#chkNumbers')
-const chkSymbols = document.querySelector('#chkSymbols')
-
-//
-
-const LOWER = 'abcdefghijklmnopqrstuvwxyz'
-const UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+const LOWER   = 'abcdefghijklmnopqrstuvwxyz'
+const UPPER   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const NUMBERS = '0123456789'
 const SYMBOLS = '!@#$%^&*'
 
+// === DOM ===
 
-lengthSlider.addEventListener('input', () => {
+const passwordDisplay = document.querySelector('#passwordDisplay')
+const copyBtn         = document.querySelector('#copyBtn')
+const copyLabel       = document.querySelector('#copyLabel')
+const lengthSlider    = document.querySelector('#lengthSlider')
+const lengthValue     = document.querySelector('#lengthValue')
+const strengthBar     = document.querySelector('#strengthBar')
+const strengthLabel   = document.querySelector('#strengthLabel')
+const errorMsg        = document.querySelector('#errorMsg')
+const generateBtn     = document.querySelector('#generateBtn')
+
+const chkLower   = document.querySelector('#chkLower')
+const chkUpper   = document.querySelector('#chkUpper')
+const chkNumbers = document.querySelector('#chkNumbers')
+const chkSymbols = document.querySelector('#chkSymbols')
+
+// === EVENTOS ===
+
+lengthSlider.addEventListener('input', handleSlider)
+generateBtn.addEventListener('click', handleGenerate)
+copyBtn.addEventListener('click', handleCopy)
+
+// === HANDLERS ===
+
+/**
+ * Actualiza el valor visible del slider y su atributo aria en tiempo real.
+ */
+function handleSlider() {
     lengthValue.textContent = Number(lengthSlider.value)
-    
-})
+    lengthSlider.setAttribute('aria-valuenow', lengthSlider.value)
+}
 
-generateBtn.addEventListener('click', function () {
+/**
+ * Maneja el click del botón generar.
+ * Valida que haya al menos un tipo de carácter seleccionado,
+ * genera la contraseña y actualiza la interfaz.
+ */
+function handleGenerate() {
     errorMsg.textContent = ''
-    const longitud = Number(lengthSlider.value)
+    const length = Number(lengthSlider.value)
     const pool = buildPool()
 
-    if (pool === '' || pool === undefined || pool === null) {
-        generarMensajeError()
+    if (!pool) {
+        showError('Selecciona por lo menos un elemento a incluir')
         return
     }
-    generatePasswrd(pool, longitud)
-})
 
-copyBtn.addEventListener('click', function () {
+    const password = generatePassword(pool, length)
+    updateUI(password)
+}
+
+/**
+ * Maneja el click del botón copiar.
+ * Copia la contraseña al portapapeles y muestra confirmación visual por 2 segundos.
+ */
+function handleCopy() {
     navigator.clipboard.writeText(passwordDisplay.textContent)
-    agregarClases(copyBtn, 'is-copied')
-    copyBtn.textContent='¡Copiado!'
+    addClasses(copyBtn, 'is-copied')
+    copyLabel.textContent = '¡Copiado!'
+    copyBtn.setAttribute('aria-label', '¡Contraseña copiada!')
 
     setTimeout(() => {
-        removerClases(copyBtn, 'is-copied')
-        copyBtn.innerHTML=`
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" />
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                    <span class="output__copy-label" id="copyLabel">Copiar</span>`
-    },2000)
-})
+        removeClasses(copyBtn, 'is-copied')
+        copyLabel.textContent = 'Copiar'
+        copyBtn.setAttribute('aria-label', 'Copiar contraseña')
+    }, 2000)
+}
 
+// === LÓGICA PRINCIPAL ===
+
+/**
+ * Construye el pool de caracteres disponibles según los checkboxes activos.
+ * @returns {string} String con todos los caracteres disponibles, vacío si ninguno está marcado.
+ */
 function buildPool() {
     let pool = ''
 
-    if (chkLower.checked) pool += LOWER
-    if (chkUpper.checked) pool += UPPER
+    if (chkLower.checked)   pool += LOWER
+    if (chkUpper.checked)   pool += UPPER
     if (chkNumbers.checked) pool += NUMBERS
     if (chkSymbols.checked) pool += SYMBOLS
 
     return pool
 }
 
-function generatePasswrd(pool,longitud) {
-    let passwrd = ''
+/**
+ * Genera una contraseña aleatoria a partir de un pool de caracteres.
+ * @param {string} pool - String con todos los caracteres disponibles para construir la contraseña.
+ * @param {number} length - Longitud deseada de la contraseña.
+ * @returns {string} Contraseña generada aleatoriamente.
+ */
+function generatePassword(pool, length) {
+    let password = ''
 
-    for (let i = 0; i < longitud; i++) {
-        let indiceAleatorio = Math.floor(Math.random() * pool.length)
-        let char = pool[indiceAleatorio]
-        passwrd += char
+    for (let i = 0; i < length; i++) {
+        let randomIndex = Math.floor(Math.random() * pool.length)
+        let char = pool[randomIndex]
+        password += char
     }
-    removerClases(passwordDisplay,'is-placeholder')
-    passwordDisplay.textContent = passwrd
-    updateStrength(pool,longitud)
+
+    return password
 }
 
+/**
+ * Calcula el puntaje de fortaleza de la contraseña
+ * basándose en la longitud y la variedad de tipos de caracteres activos.
+ * @param {number} length - Longitud de la contraseña generada.
+ * @returns {number} Puntaje total (máximo 6: 2 por longitud + 4 por variedad).
+ */
+function calculateStrength(length) {
+    let variety = 0
+    let score = 0
 
-function updateStrength(pool, longitud) {
-    let variedad = 0
-    let puntaje = 0
+    if (chkLower.checked)   variety++
+    if (chkUpper.checked)   variety++
+    if (chkNumbers.checked) variety++
+    if (chkSymbols.checked) variety++
 
-    if (chkLower.checked) variedad++
-    if (chkUpper.checked) variedad++
-    if (chkNumbers.checked) variedad++
-    if (chkSymbols.checked) variedad++
+    if (length >= 16) score++
+    if (length >= 24) score++
 
-    if (longitud >= 16) puntaje+= 1
-    if (longitud >= 24) puntaje+= 1
-
-    const puntajeTotal = puntaje+variedad
-
-    actualizarDOM(puntajeTotal)
+    return score + variety
 }
 
-function actualizarDOM(puntaje) {
-    let nivelSeguridad = ''
+// === UI ===
 
-    if (puntaje <=2) {
-        nivelSeguridad = 'Débil'
+/**
+ * Actualiza la interfaz tras generar una contraseña:
+ * muestra la contraseña, calcula la fortaleza y habilita el botón copiar.
+ * @param {string} password - Contraseña generada para mostrar.
+ */
+function updateUI(password) {
+    removeClasses(passwordDisplay, 'is-placeholder')
+    passwordDisplay.textContent = password
 
-        removerClases(strengthBar,'is-medium', 'is-strong')
-        agregarClases(strengthBar,'is-weak')
+    const totalScore = calculateStrength(password.length)
+    renderStrength(totalScore)
 
-        removerClases(strengthLabel,'is-medium', 'is-strong')
-        agregarClases(strengthLabel,'is-weak')
-    } else if (puntaje <=4) {
-        nivelSeguridad = 'Media'
+    copyBtn.disabled = false
+}
 
-        removerClases(strengthBar,'is-weak', 'is-strong')
-        agregarClases(strengthBar,'is-medium')
+/**
+ * Actualiza la barra y el label del indicador de fortaleza según el puntaje.
+ * @param {number} score - Puntaje calculado por calculateStrength.
+ */
+function renderStrength(score) {
+    let strengthLevel = ''
 
-        removerClases(strengthLabel,'is-weak', 'is-strong')
-        agregarClases(strengthLabel,'is-medium')
+    removeClasses(strengthBar, 'is-weak', 'is-medium', 'is-strong')
+    removeClasses(strengthLabel, 'is-weak', 'is-medium', 'is-strong')
+
+    if (score <= 2) {
+        strengthLevel = 'Débil'
+        addClasses(strengthBar, 'is-weak')
+        addClasses(strengthLabel, 'is-weak')
+    } else if (score <= 4) {
+        strengthLevel = 'Media'
+        addClasses(strengthBar, 'is-medium')
+        addClasses(strengthLabel, 'is-medium')
     } else {
-        nivelSeguridad = 'Fuerte'
-
-        removerClases(strengthBar,'is-weak', 'is-medium')
-        agregarClases(strengthBar,'is-strong')
-
-        removerClases(strengthLabel,'is-weak', 'is-medium')
-        agregarClases(strengthLabel,'is-strong')
+        strengthLevel = 'Fuerte'
+        addClasses(strengthBar, 'is-strong')
+        addClasses(strengthLabel, 'is-strong')
     }
-    strengthLabel.textContent = nivelSeguridad
+
+    strengthLabel.textContent = strengthLevel
 }
 
-function generarMensajeError(){
-    errorMsg.textContent = 'Selecciona por lo menos un elemento a incluir'
+/**
+ * Muestra un mensaje de error en el elemento de error.
+ * @param {string} message - Mensaje a mostrar al usuario.
+ */
+function showError(message) {
+    errorMsg.textContent = message
 }
 
-function removerClases(elemento, ...clase) {
-    elemento.classList.remove(...clase)
+// === UTILIDADES ===
+
+/**
+ * Agrega una o más clases CSS a un elemento del DOM.
+ * @param {Element} element - Elemento al que se le agregarán las clases.
+ * @param {...string} classes - Clases CSS a agregar.
+ */
+function addClasses(element, ...classes) {
+    element.classList.add(...classes)
 }
 
-function agregarClases(elemento, ...clase) {
-    elemento.classList.add(...clase)
+/**
+ * Remueve una o más clases CSS de un elemento del DOM.
+ * @param {Element} element - Elemento al que se le removerán las clases.
+ * @param {...string} classes - Clases CSS a remover.
+ */
+function removeClasses(element, ...classes) {
+    element.classList.remove(...classes)
 }
