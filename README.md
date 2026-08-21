@@ -39,8 +39,10 @@ cd generadorContrasenas
 ```
 password-generator/
 ├── index.html
-├── styles.css
-├── app.js
+├── css/
+│   └── styles.css
+├── js/
+│   └── app.js
 ├── .gitignore
 └── README.md
 ```
